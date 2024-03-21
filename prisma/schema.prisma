@@ -44,3 +44,11 @@ model UserCategories {
     
     @@id([userId, categoryId])
 }
+
+model OtpVerification {
+    id              Int      @id @default(autoincrement())
+    userId          Int      @unique
+    otp             String
+    otpExpiration   DateTime
+    user            User     @relation(fields: [userId], references: [id])
+}

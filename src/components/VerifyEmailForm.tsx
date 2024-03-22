@@ -11,9 +11,11 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
   const router = useRouter();
 
   const verifyOtpMutation = trpc.user.verifyOtp.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       console.log('Email verified successfully');
-      router.push('/success-page');
+      localStorage.setItem('authToken', data.authToken);
+      localStorage.setItem('userName', data.userName);
+      router.push('/categories');
     },
     onError: (error) => {
       console.error('Verification error:', error.message);
@@ -24,7 +26,6 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
     if (isNaN(Number(element.value))) return;
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
 
-    // Focus next input
     if (element.nextSibling) {
       (element.nextSibling as HTMLInputElement).focus();
     }

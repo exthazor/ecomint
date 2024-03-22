@@ -26,10 +26,19 @@ export const userRouter = t.router({
       });
   
       if (existingUser && !existingUser.emailVerified) {
-        throw new Error('An account with this email already exists but is not verified.');
-      }
-
-      if (existingUser && !existingUser.emailVerified) {
+        await prisma.userCategories.deleteMany({
+          where: { userId: existingUser.id },
+        });
+        await prisma.authToken.deleteMany({
+          where: { userId: existingUser.id },
+        });
+        await prisma.otpVerification.deleteMany({
+          where: { userId: existingUser.id },
+        });
+        await prisma.user.delete({
+          where: { email },
+        });
+      } else if (existingUser && existingUser.emailVerified) {
         throw new Error('A verified account with this email already exists.');
       }
 
@@ -106,6 +115,7 @@ export const userRouter = t.router({
         status: 'success',
         message: 'Signup complete. User verified.',
         authToken,
+        userName: user.name
       };
     }),
 
@@ -121,6 +131,36 @@ export const userRouter = t.router({
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user) throw new Error('User not found');
 
+      // Check if the user's email is verified
+    if (!user.emailVerified) {
+      // User's email is not verified, trigger OTP verification
+
+      const otp = generateOtp();
+      const otpExpiration = new Date(Date.now() + 1000 * 60 * 10); // 10 minutes
+
+      // Update or create OTP verification record for the user
+      await prisma.otpVerification.upsert({
+        where: { userId: user.id },
+        update: { otp, otpExpiration },
+        create: {
+          userId: user.id,
+          otp,
+          otpExpiration,
+        },
+      });
+
+      // Send the OTP to the user's email
+      sendOtpEmail(email, otp);
+
+      // Return a response indicating that OTP verification is required
+      return {
+        status: 'otp-required',
+        message: 'OTP verification required. Please check your email for the OTP.',
+        authToken: '',
+        userName: user.name
+      };
+    }
+
       // Verify password
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) throw new Error('Invalid credentials');
@@ -134,20 +174,22 @@ export const userRouter = t.router({
         },
       });
 
-      return { authToken: authToken.authToken };
+      return { 
+        authToken: authToken.authToken,
+        userName: user.name
+      };
     }),
 
   // Logout functionality
   logout: t.procedure
     .input(z.object({
-      userId: z.number(),
+      authToken: z.string(),
     }))
     .mutation(async ({ input }) => {
-      const { userId } = input;
-      // Invalidate or delete the auth token to log out the user
+      const { authToken } = input;
       await prisma.authToken.deleteMany({
         where: {
-          userId,
+          authToken,
         },
       });
 

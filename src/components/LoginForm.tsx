@@ -11,16 +11,28 @@ const LoginForm = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
+        
       const response = await loginMutation.mutateAsync({ email, password });
-      localStorage.setItem('authToken', response.authToken);
-      router.push('/categories'); // Navigate to categories page
+      if (response.status === 'otp-required') {
+        // OTP verification is required
+        // Optionally, you might want to store the email in local storage or context for re-use in the VerifyEmailForm
+        sessionStorage.setItem('userEmail', email);
+  
+        // Navigate the user to the VerifyEmailForm
+        router.push('/verify-email');
+    } else{
+        localStorage.setItem('authToken', response.authToken);
+        localStorage.setItem('userName', response.userName);
+        router.push('/categories'); // Navigate to categories page
+    }
+
     } catch (error) {
       console.error('Login failed:', error);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
+    <div className="flex justify-center w-full items-center h-screen bg-gray-50">
       <div className="bg-white shadow-xl rounded-lg p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
         <form onSubmit={handleSubmit} className="space-y-6">

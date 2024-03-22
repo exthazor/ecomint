@@ -37,25 +37,38 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
     verifyOtpMutation.mutate({ email, otp: otpCode });
   };
 
+  const maskEmail = (email: string) => {
+    const [user, domain] = email.split('@');
+    if (user!!.length > 3) {
+      const visiblePart = user!!.substring(0, 3);
+      const maskedPart = '*'.repeat(user!!.length - 3);
+      return `${visiblePart}${maskedPart}@${domain}`;
+    }
+    return `${'*'.repeat(user!!.length)}@${domain}`;
+  }
+
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-lg font-bold mb-4">Verify your email</h1>
-      <p className="mb-4">Enter the 8 digit code you have received on {email}</p>
+    <div className="flex justify-center items-center mt-12 ">
+      <div className="p-14 bg-white rounded-2xl border border-gray-300">
+      
+      <h1 className="text-3xl text-center font-bold mb-4">Verify your email</h1>
+      <p className="mb-12 text-center">Enter the 8 digit code you have received on <p className='text-center'> {maskEmail(email)}</p></p>
+      <p>Code</p>
       <form onSubmit={handleSubmit}>
-        <div className="mb-4 flex gap-2 justify-center">
+        <div className="mb-4 flex gap-3 justify-center">
           {otp.map((data, index) => (
             <input
               key={index}
               type="text"
               value={data}
               maxLength={1}
-              className="border w-8 p-2 text-center"
+              className="border w-8 p-1 text-center rounded-md"
               onChange={(e) => handleChange(e.target as HTMLInputElement, index)}
               onFocus={(e) => e.target.select()}
             />
           ))}
         </div>
-        <button type="submit" className="bg-black text-white w-full p-2" disabled={verifyOtpMutation.isPending}>
+        <button type="submit" className="bg-black text-white w-full p-2 mt-3" disabled={verifyOtpMutation.isPending}>
           VERIFY
         </button>
         {verifyOtpMutation.isError && (
@@ -63,6 +76,8 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
         )}
       </form>
     </div>
+    </div>
+    
   );
 };
 

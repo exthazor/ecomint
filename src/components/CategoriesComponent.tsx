@@ -1,8 +1,7 @@
-// Import React, useState, useEffect, useRouter from 'next/router', trpc, and the CategoriesModal component
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
-import CategoriesModal from './CategoriesModal';
+import CategoriesDialog from './CategoriesDialog';
 
 const usePagination = (currentPage: any, totalPages: any) => {
     const totalBlocks = 7; // This is the total number of pagination blocks (including ellipses, but excluding the first and last page)
@@ -52,86 +51,64 @@ const usePagination = (currentPage: any, totalPages: any) => {
   
     return paginationRange;
   };
-  
+
+  type Category = {
+    id: number;
+    name: string;
+    isInterested: boolean;
+  };
+
 const CategoriesComponent = () => {
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
+  const [categories, setCategories] = useState<Category[]>([]);
   const pageSize = 6;
   const router = useRouter();
+  const [totalPages, setTotalPages] = useState(0);
   const userName = typeof window !== "undefined" ? localStorage.getItem('userName') || 'User' : '';
   const authToken = typeof window !== "undefined" ? localStorage.getItem('authToken') || '' : '';
 
+  const { data: categoriesData, isLoading, isError, error } = trpc.category.list.useQuery({ page, limit: pageSize });
 
-
-  // Replace 'category.list' and 'category.toggleInterest' with your actual tRPC hooks
-  const { data: categoriesData, isLoading, isError, error } = trpc.category.list.useQuery({
-    page,
-    limit: pageSize,
-  });
-
-  // Update total pages based on the total number of categories
   useEffect(() => {
-    if (categoriesData?.total) {
+    if (categoriesData) {
+      setCategories(categoriesData.categories);
       setTotalPages(Math.ceil(categoriesData.total / pageSize));
     }
-  }, [categoriesData, pageSize]);
+  }, [categoriesData]);
 
-  const pageNumbers = usePagination(page, totalPages); // Assume usePagination hook is defined elsewhere
+  const pageNumbers = usePagination(page, totalPages);
 
   const toggleInterestMutation = trpc.category.toggleInterest.useMutation();
 
-  const handleLogout = () => {
-    // Function to handle user logout
-    trpc.user.logout.useMutation().mutate(
-      { authToken },
-      {
-        onSuccess: () => {
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('userName');
-          router.push('/login');
-        },
-      }
-    );
-  };
+  const handleCheckboxChange = (categoryId: number, currentInterest: boolean) => {
+    // Optimistically update UI
+    const updatedCategories = categories.map(category => category.id === categoryId ? { ...category, isInterested: !currentInterest } : category);
+    setCategories(updatedCategories);
 
-  const handleCheckboxChange = async (categoryId: number, isInterested: boolean) => {
-    // Optimistically update the UI
-    const updatedCategories = categoriesData?.categories.map((category) => {
-      if (category.id === categoryId) {
-        return { ...category, isInterested: !isInterested };
-      }
-      return category;
-    });
-
-    // Attempt to update the backend
-    try {
-      await toggleInterestMutation.mutateAsync({ categoryId, interested: !isInterested });
-      // If backend call fails, you might want to revert the UI update or handle the error
-    } catch (error) {
-      console.error('Failed to update interest:', error);
-    }
+    // Perform actual update in the background
+    toggleInterestMutation.mutate({ categoryId, interested: !currentInterest });
   };
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <CategoriesModal title="Please mark your interests!" subtitle='We will keep you notified.' subtitle2='My saved interests!'>
-        <ul className="space-y-4">
-          {categoriesData?.categories.map((category) => (
-            <li key={category.id} className="flex items-center">
-              <input
-                type="checkbox"
-                checked={category.isInterested}
-                onChange={() => handleCheckboxChange(category.id, category.isInterested)}
-                className={`form-checkbox h-5 w-5 mr-2 ${category.isInterested ? 'bg-black text-white' : 'bg-gray-200 text-gray-400'} border-transparent`}
-              />
-              <span className={category.isInterested ? 'font-normal text-sm' : 'font-normal text-sm'}>{category.name}</span>
-            </li>
-          ))}
-        </ul>
-        {/* Pagination buttons */}
+    <CategoriesDialog title="Please mark your interests!" subtitle="We will keep you notified." subtitle2="My saved interests!">
+      {/* Categories listing and checkbox handling */}
+      <ul className="space-y-4">
+        {categories.map((category) => (
+          <li key={category.id} className="flex items-center">
+            <input
+              type="checkbox"
+              checked={category.isInterested}
+              onChange={() => handleCheckboxChange(category.id, category.isInterested)}
+              className="form-checkbox h-5 w-5 mr-2"
+            />
+            <span>{category.name}</span>
+          </li>
+        ))}
+      </ul>
+      {/* Pagination buttons */}
     <div className="flex text-xs justify-center mt-12 space-x-2">
     <button
     onClick={() => setPage(1)}
@@ -172,9 +149,8 @@ const CategoriesComponent = () => {
     {">>"}
     </button>
     </div>
-        </CategoriesModal>
-        </div>
-    );
-    };
+    </CategoriesDialog>
+  );
+};
 
 export default CategoriesComponent;

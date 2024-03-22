@@ -36,7 +36,7 @@ export const categoryRouter = createTRPCRouter({
       const total = await prisma.category.count();
       const hasMore = page * limit < total;
   
-      return { categories: categoriesWithInterest, hasMore };
+      return { categories: categoriesWithInterest, hasMore, total };
     }),
 
   toggleInterest: publicProcedure

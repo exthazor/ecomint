@@ -24,7 +24,7 @@ model User {
 model AuthToken {
   id        Int      @id @default(autoincrement())
   userId    Int
-  authToken String
+  authToken String   @unique
   ttl       DateTime
   user      User     @relation(fields: [userId], references: [id])
 }

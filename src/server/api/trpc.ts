@@ -10,8 +10,9 @@ import { initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
 import { db } from "~/server/db";
+import { PrismaClient } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
 
 /**
  * 1. CONTEXT
@@ -39,14 +40,31 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
   };
 };
 
+const prisma = new PrismaClient();
+
 /**
  * This is the actual context you will use in your router. It will be used to process every request
  * that goes through your tRPC endpoint.
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
+  const authToken = _opts.req.headers.authorization?.split(' ')[1];
+
+  let user = null;
+  if (authToken) {
+    const tokenRecord = await prisma.authToken.findUnique({
+      where: { authToken },
+      include: { user: true },
+    });
+
+    if (!tokenRecord || new Date() > tokenRecord.ttl) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    user = tokenRecord.user;
+  }
+
+  return { ...createInnerTRPCContext({}), user };
 };
 
 /**
@@ -100,3 +118,10 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+const isAuthenticated = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.user) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next();
+});

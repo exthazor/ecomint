@@ -16,7 +16,15 @@ const SignupForm = () => {
       router.push('/verify-email');
     },
     onError: (error) => {
-      console.error('Registration error:', error);
+      if (error.message === "An account with this email already exists but is not verified.") {
+        sessionStorage.setItem('userEmail', email);
+        router.push('/verify-email');
+      } else if (error.message === "A verified account with this email already exists.") {
+          sessionStorage.setItem('userEmail', email);
+          router.push('/login');
+        } else {
+        console.error('Registration error:', error);
+      }
     },
   });
 

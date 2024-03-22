@@ -19,6 +19,18 @@ export const userRouter = t.router({
       const { name, email, password } = input;
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(password, salt);
+      // Check if existing user
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+  
+      if (existingUser && !existingUser.emailVerified) {
+        throw new Error('An account with this email already exists but is not verified.');
+      }
+
+      if (existingUser && !existingUser.emailVerified) {
+        throw new Error('A verified account with this email already exists.');
+      }
 
       const user = await prisma.user.create({
         data: {
@@ -26,11 +38,11 @@ export const userRouter = t.router({
           email,
           passwordHash,
           salt,
-          emailVerified: false, // Initially, the email is not verified
+          emailVerified: false,
         },
       });
 
-      const otp = generateOtp(); // Implement this to generate a secure OTP
+      const otp = generateOtp();
       const otpExpiration = new Date(Date.now() + 1000 * 60 * 10); // 10 minutes
 
       await prisma.otpVerification.create({
@@ -41,7 +53,7 @@ export const userRouter = t.router({
         },
       });
 
-      sendOtpEmail(email, otp); // Implement this to send the OTP via email
+      sendOtpEmail(email, otp);
 
       return {
         status: 'pending-verification',
@@ -95,8 +107,6 @@ export const userRouter = t.router({
         authToken,
       };
     }),
-
-  // Existing login mutation...
 
   // Logout functionality
   logout: t.procedure

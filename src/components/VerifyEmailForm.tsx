@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { trpc } from '../src/utils/trpc';
+import { trpc } from '../utils/trpc';
 
-// Define a TypeScript interface for the component props
 interface VerifyEmailFormProps {
-  email: string; // Specify that `email` is expected to be of type string
+  email: string;
 }
 
 const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
@@ -14,7 +13,7 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
   const verifyOtpMutation = trpc.user.verifyOtp.useMutation({
     onSuccess: () => {
       console.log('Email verified successfully');
-      router.push('/success-page'); // Adjust as necessary
+      router.push('/success-page');
     },
     onError: (error) => {
       console.error('Verification error:', error.message);
@@ -22,7 +21,7 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
   });
 
   const handleChange = (element: HTMLInputElement, index: number) => {
-    if (isNaN(Number(element.value))) return; // Only allow numbers
+    if (isNaN(Number(element.value))) return;
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
 
     // Focus next input

@@ -163,7 +163,7 @@ export const userRouter = t.router({
 
       // Verify password
       const isValid = await bcrypt.compare(password, user.passwordHash);
-      if (!isValid) throw new Error('Invalid credentials');
+      if (!isValid) throw new Error('Your password is incorrect. Please try again.');
 
       // If valid, create a new authToken record
       const authToken = await prisma.authToken.create({

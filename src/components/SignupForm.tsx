@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { trpc } from '../src/utils/trpc';
+import { trpc } from '../utils/trpc';
 
 
 const SignupForm = () => {
@@ -12,6 +12,7 @@ const SignupForm = () => {
   const registerMutation = trpc.user.register.useMutation({
     onSuccess: () => {
       console.log('Registration successful');
+      sessionStorage.setItem('userEmail', email);
       router.push('/verify-email');
     },
     onError: (error) => {

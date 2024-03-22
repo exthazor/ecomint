@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import { initTRPC } from '@trpc/server';
 import { generateOtp, sendOtpEmail } from '../../../utils/otp';
+import { generateAuthToken } from '~/utils/token';
 
 const t = initTRPC.create();
 const prisma = new PrismaClient();
@@ -90,7 +91,7 @@ export const userRouter = t.router({
       });
 
       // Generate and return a new auth token for the user
-      const authToken = 'newly-generated-token'; // Implement token generation
+      const authToken = generateAuthToken();
       const ttl = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 days
 
       await prisma.authToken.create({
@@ -106,6 +107,34 @@ export const userRouter = t.router({
         message: 'Signup complete. User verified.',
         authToken,
       };
+    }),
+
+  login: t.procedure
+    .input(z.object({
+      email: z.string().email(),
+      password: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const { email, password } = input;
+
+      // Attempt to find the user by email
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) throw new Error('User not found');
+
+      // Verify password
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) throw new Error('Invalid credentials');
+
+      // If valid, create a new authToken record
+      const authToken = await prisma.authToken.create({
+        data: {
+          userId: user.id,
+          authToken: generateAuthToken(), 
+          ttl: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        },
+      });
+
+      return { authToken: authToken.authToken };
     }),
 
   // Logout functionality

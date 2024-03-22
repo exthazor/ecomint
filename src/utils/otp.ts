@@ -9,7 +9,6 @@ export const generateOtp = (length = 8) => {
   };  
 
 export const sendOtpEmail = async (to: string, otp: string) => {
-  // Create reusable transporter object using SMTP transport
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -20,11 +19,10 @@ export const sendOtpEmail = async (to: string, otp: string) => {
 
   const mailOptions = {
     from: process.env.MAIL_USERNAME,
-    to: to, // List of receivers
+    to: to,
     subject: `Your OTP is ${otp}`,
     text: `Your OTP is: ${otp}`,
   };
 
-  // Send mail with defined transport object
   return transporter.sendMail(mailOptions);
 };

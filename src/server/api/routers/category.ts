@@ -63,7 +63,6 @@ export const categoryRouter = createTRPCRouter({
           },
         });
       }
-
       return { success: true };
     }),
 });

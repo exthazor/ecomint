@@ -4,8 +4,8 @@ import HeaderComponent from '~/components/Header';
 export default function SignupPage() {
   return (
     <>
-    <HeaderComponent />
+      <HeaderComponent />
       <LoginForm />
-      </>
+    </>
   );
 }

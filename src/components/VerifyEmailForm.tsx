@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
+import BoxComponent from './Box';
 
 interface VerifyEmailFormProps {
   email: string;
@@ -48,10 +49,7 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
   }
 
   return (
-    <div className="flex justify-center items-center mt-12 ">
-      <div className="p-14 bg-white rounded-2xl border border-gray-300">
-      
-      <h1 className="text-3xl text-center font-bold mb-4">Verify your email</h1>
+    <BoxComponent title='Verify your email'>
       <p className="mb-12 text-center">Enter the 8 digit code you have received on <p className='text-center'> {maskEmail(email)}</p></p>
       <p>Code</p>
       <form onSubmit={handleSubmit}>
@@ -75,9 +73,7 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
           <p className="text-red-500">{verifyOtpMutation.error.message}</p>
         )}
       </form>
-    </div>
-    </div>
-    
+    </BoxComponent>
   );
 };
 

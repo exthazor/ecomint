@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
 import Modal from './Modal';
 import BoxComponent from './Box';
+import { useErrorHandler } from '~/hooks/useErrorHandler';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -10,38 +11,24 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const loginMutation = trpc.user.login.useMutation();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { errorMessage, isModalOpen, handleServerError, closeModal } = useErrorHandler();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-        
       const response = await loginMutation.mutateAsync({ email, password });
       if (response.status === 'otp-required') {
         sessionStorage.setItem('userEmail', email);
         router.push('/verify-email');
-    } else{
-        localStorage.setItem('authToken', response.authToken);
-        localStorage.setItem('userName', response.userName);
-        router.push('/categories');
-    }
-
-    } catch (error: any) {
-        console.error('Login failed:', error);
-        if(typeof(error.message) === 'string'){
-          setErrorMessage(error.message)
+      } else{
+          localStorage.setItem('authToken', response.authToken);
+          localStorage.setItem('userName', response.userName);
+          router.push('/categories');
         }
-        else{
-          setErrorMessage('An unexpected error occurred');
-        }
-        setIsModalOpen(true);   
-    }
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+      } catch (error) {
+        handleServerError(error);
+      }
+}  
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);

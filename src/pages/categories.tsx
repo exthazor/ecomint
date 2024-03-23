@@ -1,17 +1,18 @@
+// pages/categories.js
 import React from 'react';
 import HeaderComponent from '~/components/Header';
 import CategoriesComponent from '../components/Categories';
+import { useAuth } from '../hooks/useAuth';
 import { useRouter } from 'next/router';
-import { trpc } from '../utils/trpc';
-
+import { trpc } from '~/utils/trpc';
 
 const CategoriesPage = () => {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
-    const router = useRouter();
   const userName = typeof window !== "undefined" ? localStorage.getItem('userName') || 'User' : '';
   const authToken = typeof window !== "undefined" ? localStorage.getItem('authToken') || 'User' : '';
 
-  // Function to handle user logout
   const logoutMutation = trpc.user.logout.useMutation({
     onSuccess: () => {
       localStorage.removeItem('authToken');
@@ -23,10 +24,16 @@ const CategoriesPage = () => {
     },
   });
 
-  // Function to handle user logout
   const handleLogout = () => {
-    logoutMutation.mutate({authToken});
+    if (authToken) {
+      logoutMutation.mutate({ authToken });
+    }
   };
+
+  if (!isAuthenticated) {
+    return <div>Redirecting to login...</div>;
+  }
+
   return (
     <>
       <HeaderComponent showUser={true} userName={userName} onLogout={handleLogout} />

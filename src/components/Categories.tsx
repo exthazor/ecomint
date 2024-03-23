@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
 import CategoriesDialog from './CategoriesDialog';
+import Loader from './Loader';
 
 const usePagination = (currentPage: any, totalPages: any) => {
     const totalBlocks = 7; 
@@ -45,11 +46,11 @@ const usePagination = (currentPage: any, totalPages: any) => {
     return paginationRange;
   };
 
-  type Category = {
-    id: number;
-    name: string;
-    isInterested: boolean;
-  };
+type Category = {
+  id: number;
+  name: string;
+  isInterested: boolean;
+};
 
 const CategoriesComponent = () => {
   const [page, setPage] = useState(1);
@@ -57,8 +58,6 @@ const CategoriesComponent = () => {
   const pageSize = 6;
   const router = useRouter();
   const [totalPages, setTotalPages] = useState(0);
-  const userName = typeof window !== "undefined" ? localStorage.getItem('userName') || 'User' : '';
-  const authToken = typeof window !== "undefined" ? localStorage.getItem('authToken') || '' : '';
 
   const { data: categoriesData, isLoading, isError, error } = trpc.category.list.useQuery({ page, limit: pageSize });
 
@@ -74,15 +73,12 @@ const CategoriesComponent = () => {
   const toggleInterestMutation = trpc.category.toggleInterest.useMutation();
 
   const handleCheckboxChange = (categoryId: number, currentInterest: boolean) => {
-    // Optimistically update UI
     const updatedCategories = categories.map(category => category.id === categoryId ? { ...category, isInterested: !currentInterest } : category);
     setCategories(updatedCategories);
-
-    // Perform actual update in the background
     toggleInterestMutation.mutate({ categoryId, interested: !currentInterest });
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><Loader /></div>;
   if (isError) return <div>Error: {error.message}</div>;
 
   return (

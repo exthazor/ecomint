@@ -63,12 +63,19 @@ export const userRouter = t.router({
         },
       });
 
-      sendOtpEmail(email, otp);
-
-      return {
-        status: 'pending-verification',
-        message: 'OTP sent to email. Please verify to complete registration.',
-      };
+      try {
+        // Send the OTP email and wait for it to complete.
+        await sendOtpEmail(email, otp);
+        // Continue with the response only after the email has been sent.
+        return {
+          status: 'pending-verification',
+          message: 'OTP sent to email. Please verify to complete registration.',
+        };
+      } catch (error) {
+        console.error('Failed to send OTP email:', error);
+        // Handle the error, possibly by returning an error message to the user.
+        throw new Error('Failed to send OTP. Please try again.');
+      }
     }),
 
   // OTP verification for completing the signup process
@@ -146,15 +153,21 @@ export const userRouter = t.router({
         },
       });
 
-      // Send the OTP to the user's email
-      sendOtpEmail(email, otp);
-
-      return {
-        status: 'otp-required',
-        message: 'OTP verification required. Please check your email for the OTP.',
-        authToken: '',
-        userName: user.name
-      };
+      try {
+        // Send the OTP email and wait for it to complete.
+        await sendOtpEmail(email, otp);
+        // Continue with the response only after the email has been sent.
+        return {
+          status: 'otp-required',
+          message: 'OTP verification required. Please check your email for the OTP.',
+          authToken: '',
+          userName: user.name
+        };
+      } catch (error) {
+        console.error('Failed to send OTP email:', error);
+        // Handle the error, possibly by returning an error message to the user.
+        throw new Error('Failed to send OTP. Please try again.');
+      }
     }
 
       // Verify password

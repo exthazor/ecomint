@@ -28,8 +28,13 @@ const LoginForm = () => {
 
     } catch (error: any) {
         console.error('Login failed:', error);
-        setErrorMessage(error.message || 'An unexpected error occurred');
-        setIsModalOpen(true);
+        if(typeof(error.message) === 'string'){
+          setErrorMessage(error.message)
+        }
+        else{
+          setErrorMessage('An unexpected error occurred');
+        }
+        setIsModalOpen(true);   
     }
   };
 
@@ -86,7 +91,7 @@ const LoginForm = () => {
             LOGIN
           </button>
         </form>
-        <hr className="my-6 border-gray-400" />
+        <hr className="my-6 border-gray-300" />
         <div className="mt-4 text-center">
           <a href="/signup">
             Don't have an account? <b>SIGN UP</b>
@@ -94,7 +99,7 @@ const LoginForm = () => {
         </div>
       </div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <p className="text-red-500">{errorMessage}</p>
+        {errorMessage}
       </Modal>
     </div>
   );

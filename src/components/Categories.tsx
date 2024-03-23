@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { trpc } from '~/utils/trpc';
 import CategoriesDialog from '~/components/CategoriesDialog';
 import Loader from './Loader';
@@ -34,7 +33,6 @@ const CategoriesComponent = () => {
     setLoading(isLoading);
   }, [isLoading]);
 
-  // Calculate totalPages directly in useEffect to prevent unnecessary rerenders
   useEffect(() => {
     if (categoriesData) {
       setCategories(categoriesData.categories);

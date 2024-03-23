@@ -1,4 +1,3 @@
-// pages/categories.js
 import React, { useState, useEffect } from 'react';
 import HeaderComponent from '~/components/Header';
 import CategoriesComponent from '../components/Categories';

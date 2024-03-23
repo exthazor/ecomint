@@ -63,17 +63,14 @@ export const userRouter = t.router({
       });
 
       try {
-        // Send the OTP email and wait for it to complete.
         await sendOtpEmail(email, otp);
-        // Continue with the response only after the email has been sent.
         return {
           status: 'pending-verification',
           message: 'OTP sent to email. Please verify to complete registration.',
         };
       } catch (error) {
-        console.error('Failed to send OTP email:', error);
-        // Handle the error, possibly by returning an error message to the user.
-        throw new Error('Failed to send OTP. Please try again.');
+          console.error('Failed to send OTP email:', error);
+          throw new Error('Failed to send OTP. Please try again.');
       }
     }),
 
@@ -94,7 +91,6 @@ export const userRouter = t.router({
         throw new Error('OTP verification failed.');
       }
 
-      // Mark the email as verified
       await prisma.user.update({
         where: { id: user.id },
         data: { emailVerified: true },
@@ -153,17 +149,13 @@ export const userRouter = t.router({
     }))
     .mutation(async ({ input }) => {
       const { email, password } = input;
-
-      // Attempt to find the user by email
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user) throw new Error('An account associated with this email does not exist.');
-
       // Check if the user's email is verified
     if (!user.emailVerified) {
       const otp = generateOtp();
       const otpExpiration = new Date(Date.now() + 1000 * 60 * 10); // 10 minutes
 
-      // Update or create OTP verification record for the user
       await prisma.otpVerification.upsert({
         where: { userId: user.id },
         update: { otp, otpExpiration },

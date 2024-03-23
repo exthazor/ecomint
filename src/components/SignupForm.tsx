@@ -4,7 +4,6 @@ import { trpc } from '../utils/trpc';
 import BoxComponent from './Box';
 import Modal from './Modal';
 
-
 const SignupForm = () => {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -27,7 +26,7 @@ const SignupForm = () => {
       sessionStorage.setItem('userEmail', email);
       router.push('/verify-email');
     },
-    onError: (error) => {
+    onError: (error: any) => {
        if (error.message === "An account with this email already exists but is not verified.") {
         setModalMessage(error.message || 'An unexpected error occurred');
         setIsModalOpen(true);

@@ -1,32 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderComponent from '~/components/Header';
 import CategoriesComponent from '../components/Categories';
+import { useAuth } from '../hooks/useAuth';
 import { useRouter } from 'next/router';
-import { trpc } from '../utils/trpc';
-
+import { trpc } from '~/utils/trpc';
+import Loader from '~/components/Loader';
 
 const CategoriesPage = () => {
-
-    const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const userName = typeof window !== "undefined" ? localStorage.getItem('userName') || 'User' : '';
   const authToken = typeof window !== "undefined" ? localStorage.getItem('authToken') || 'User' : '';
 
-  // Function to handle user logout
   const logoutMutation = trpc.user.logout.useMutation({
+    onMutate: () => setLoading(true), 
     onSuccess: () => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('userName');
+      setLoading(false); 
       router.push('/login');
     },
     onError: (error) => {
       console.error('Logout failed', error);
+      setLoading(false); 
     },
   });
 
-  // Function to handle user logout
+  if (loading) return <Loader />;
+  
   const handleLogout = () => {
-    logoutMutation.mutate({authToken});
+    if (authToken) {
+      logoutMutation.mutate({ authToken });
+    }
   };
+
+  if (!isAuthenticated) {
+    return <div>Redirecting to login...</div>;
+  }
+
   return (
     <>
       <HeaderComponent showUser={true} userName={userName} onLogout={handleLogout} />

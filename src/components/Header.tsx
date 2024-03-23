@@ -21,7 +21,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   };
 
   const handleLogoClick = useCallback(() => {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = typeof window !== "undefined" ? localStorage.getItem('authToken') || 'User' : '';
     if (authToken) {
       router.push('/categories');
     } else {

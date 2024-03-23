@@ -47,7 +47,6 @@ export const userRouter = t.router({
           name,
           email,
           passwordHash,
-          salt,
           emailVerified: false,
         },
       });
@@ -124,6 +123,28 @@ export const userRouter = t.router({
         userName: user.name
       };
     }),
+  
+  validateToken: t.procedure
+    .input(z.object({
+      authToken: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const { authToken } = input;
+      const tokenRecord = await prisma.authToken.findUnique({
+        where: { authToken },
+      });
+
+      if (!tokenRecord) {
+        return { isValid: false, message: "Invalid or expired token." };
+      }
+      if (tokenRecord.ttl < new Date()) {
+        await prisma.authToken.delete({
+          where: { authToken },
+        });    
+        return { isValid: false, message: "Token has expired." };
+      }
+      return { isValid: true, message: "Token is valid." };
+    }),
 
   login: t.procedure
     .input(z.object({
@@ -152,11 +173,8 @@ export const userRouter = t.router({
           otpExpiration,
         },
       });
-
       try {
-        // Send the OTP email and wait for it to complete.
         await sendOtpEmail(email, otp);
-        // Continue with the response only after the email has been sent.
         return {
           status: 'otp-required',
           message: 'OTP verification required. Please check your email for the OTP.',
@@ -165,16 +183,12 @@ export const userRouter = t.router({
         };
       } catch (error) {
         console.error('Failed to send OTP email:', error);
-        // Handle the error, possibly by returning an error message to the user.
         throw new Error('Failed to send OTP. Please try again.');
       }
     }
-
-      // Verify password
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) throw new Error('Your password is incorrect. Please try again.');
 
-      // If valid, create a new authToken record
       const authToken = await prisma.authToken.create({
         data: {
           userId: user.id,

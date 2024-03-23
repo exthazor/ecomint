@@ -3,19 +3,18 @@ import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
 import BoxComponent from './Box';
 import Modal from './Modal';
+import { useErrorHandler } from '~/hooks/useErrorHandler';
 
 const SignupForm = () => {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
-
+  const { errorMessage, isModalOpen, handleServerError, closeModal: closeErrorModal, openModal } = useErrorHandler();
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    if (modalMessage === 'A verified account with this email already exists.') {
+    closeErrorModal();
+    if (errorMessage === 'A verified account with this email already exists.') {
       router.push('/login');
     }
   };
@@ -26,23 +25,19 @@ const SignupForm = () => {
       sessionStorage.setItem('userEmail', email);
       router.push('/verify-email');
     },
-    onError: (error: any) => {
-       if (error.message === "An account with this email already exists but is not verified.") {
-        setModalMessage(error.message || 'An unexpected error occurred');
-        setIsModalOpen(true);
+    onError: (error) => {
+      if (error.message === "An account with this email already exists but is not verified.") {
+        handleServerError({ message: error.message });
         sessionStorage.setItem('userEmail', email);
         router.push('/verify-email');
       } else if (error.message === "A verified account with this email already exists.") {
-          setModalMessage(error.message || 'An unexpected error occurred');
-          setIsModalOpen(true);
-          sessionStorage.setItem('userEmail', email);
-          if(isModalOpen) {
-            router.push('/login')
-          }
-        } else {
-        console.error('Registration error:', error);
-        setModalMessage('Please use eight or more characters for the password.')
-      setIsModalOpen(true);
+        handleServerError({ message: error.message });
+        sessionStorage.setItem('userEmail', email);
+        if(isModalOpen) {
+          router.push('/login');
+        }
+      } else {
+        handleServerError(error);
       }
     },
   });
@@ -77,7 +72,7 @@ const SignupForm = () => {
         </p>
       </BoxComponent>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <p>{modalMessage}</p>
+        <p>{errorMessage}</p>
       </Modal>
     </>
   );

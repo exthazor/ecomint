@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { trpc } from '~/utils/trpc';
 import CategoriesDialog from '~/components/CategoriesDialog';
 import Loader from './Loader';
-import { usePagination } from '~/hooks/usePagnation';
+import { usePagination } from '~/hooks/usePagination';
 
 type Category = {
   id: number;

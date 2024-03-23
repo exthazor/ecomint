@@ -12,13 +12,13 @@ const VerifyEmailForm = ({ email }: VerifyEmailFormProps) => {
   const router = useRouter();
 
   const verifyOtpMutation = trpc.user.verifyOtp.useMutation({
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       console.log('Email verified successfully');
       localStorage.setItem('authToken', data.authToken);
       localStorage.setItem('userName', data.userName);
       router.push('/categories');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Verification error:', error.message);
     },
   });

@@ -10,12 +10,11 @@ const SignupForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [modalMessage, setModalMessage] = useState('');
   const { errorMessage, isModalOpen, handleServerError, closeModal: closeErrorModal, openModal } = useErrorHandler();
 
   const closeModal = () => {
     closeErrorModal();
-    if (modalMessage === 'A verified account with this email already exists.') {
+    if (errorMessage === 'A verified account with this email already exists.') {
       router.push('/login');
     }
   };

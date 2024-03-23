@@ -93,8 +93,7 @@ export const userRouter = t.router({
         where: { id: user.id },
         data: { emailVerified: true },
       });
-
-      // Optionally, clean up the OTP record
+      
       await prisma.otpVerification.delete({
         where: { id: user.otpVerification.id },
       });
@@ -133,8 +132,6 @@ export const userRouter = t.router({
 
       // Check if the user's email is verified
     if (!user.emailVerified) {
-      // User's email is not verified, trigger OTP verification
-
       const otp = generateOtp();
       const otpExpiration = new Date(Date.now() + 1000 * 60 * 10); // 10 minutes
 
@@ -152,7 +149,6 @@ export const userRouter = t.router({
       // Send the OTP to the user's email
       sendOtpEmail(email, otp);
 
-      // Return a response indicating that OTP verification is required
       return {
         status: 'otp-required',
         message: 'OTP verification required. Please check your email for the OTP.',

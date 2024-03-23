@@ -8,6 +8,7 @@ import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
+import { authenticateUser } from './auth'; // Adjust the path as necessary
 
 import { type AppRouter } from "~/server/api/root";
 
@@ -40,6 +41,17 @@ export const api = createTRPCNext<AppRouter>({
            */
           transformer: superjson,
           url: `${getBaseUrl()}/api/trpc`,
+          fetch: async (url, options = {}) => {
+            // Dynamically get authToken, e.g., from localStorage or a state management library
+            const authToken = localStorage.getItem('authToken');
+            if (authToken) {
+              options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${authToken}`,
+              };
+            }
+            return fetch(url, options);
+          },
         }),
       ],
     };

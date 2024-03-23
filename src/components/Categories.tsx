@@ -4,40 +4,35 @@ import { trpc } from '../utils/trpc';
 import CategoriesDialog from './CategoriesDialog';
 
 const usePagination = (currentPage: any, totalPages: any) => {
-    const totalBlocks = 7; // This is the total number of pagination blocks (including ellipses, but excluding the first and last page)
+    const totalBlocks = 7; 
   
     const range = (start: any, end: any) => {
       return Array.from({ length: end - start + 1 }, (_, idx) => start + idx);
     };
   
     if (totalPages <= totalBlocks) {
-      // Less total pages than blocks, no need for ellipses
       return range(1, totalPages);
     }
   
-    const startPages = range(1, 2); // Always include the first two pages
-    const endPages = range(totalPages - 1, totalPages); // Always include the last two pages
-  
+    const startPages = range(1, 2);
+    const endPages = range(totalPages - 1, totalPages);
     const blocks = [1, ...startPages];
   
     let middleRangeStart = Math.max(3, currentPage - 1);
     let middleRangeEnd = Math.min(totalPages - 2, currentPage + 1);
   
     if (currentPage - 1 <= 3) {
-      // Current page is near the start; no left ellipsis needed
       middleRangeStart = 3;
-      middleRangeEnd = 3 + totalBlocks - 4; // -4 to account for first, second, and last two pages
+      middleRangeEnd = 3 + totalBlocks - 4;
     }
   
     if (totalPages - currentPage <= 3) {
-      // Current page is near the end; no right ellipsis needed
       middleRangeEnd = totalPages - 2;
-      middleRangeStart = totalPages - 2 - (totalBlocks - 4); // -4 to account for last, second last, and first two pages
+      middleRangeStart = totalPages - 2 - (totalBlocks - 4);
     }
   
     const middlePages = range(middleRangeStart, middleRangeEnd);
   
-    // Now combine them all
     let paginationRange = [
       ...blocks,
       ...(middleRangeStart > 3 ? ['...'] : []),
@@ -45,10 +40,8 @@ const usePagination = (currentPage: any, totalPages: any) => {
       ...(middleRangeEnd < totalPages - 2 ? ['...'] : []),
       ...endPages,
     ];
-  
-    // Ensure unique values only, as start and end ranges can overlap middle range
+
     paginationRange = [...new Set(paginationRange)];
-  
     return paginationRange;
   };
 
@@ -109,46 +102,41 @@ const CategoriesComponent = () => {
         ))}
       </ul>
       {/* Pagination buttons */}
-    <div className="flex text-xs justify-center mt-12 space-x-2">
-    <button
-    onClick={() => setPage(1)}
-    disabled={page === 1}
-    >
-    {"<<"}
-    </button>
-    <button
-    onClick={() => setPage(Math.max(page - 1, 1))}
-    disabled={page === 1}
-    >
-    {"<"}
-    </button>
-    {pageNumbers.map((pageNumber) => {
-    if (pageNumber === '...') {
-        return <span className="py-2 px-4">...</span>;
-    } else {
-        return (
-            <button key={pageNumber} 
-            className={`py-2 px-4 ${page === pageNumber ? 'text-black' : 'text-gray-500'} hover:text-gray-800`}
-            onClick={() => setPage(pageNumber)}
-            >
+      <div className="flex text-xs justify-center mt-12 space-x-2">
+        <button onClick={() => setPage(1)} disabled={page === 1}>
+          {"<<"}
+        </button>
+        <button onClick={() => setPage(Math.max(page - 1, 1))} disabled={page === 1}>
+          {"<"}
+        </button>
+        {pageNumbers.map((pageNumber) => {
+          if (pageNumber === '...') {
+            return <span className="py-2 px-4">...</span>;
+          } 
+          else {
+            return (
+              <button key={pageNumber} 
+              className={`py-2 px-4 ${page === pageNumber ? 'text-black' : 'text-gray-500'} hover:text-gray-800`}
+              onClick={() => setPage(pageNumber)}
+              >
                 {pageNumber}
-            </button>
-        );
-    }
-    })}
-    <button
-    onClick={() => setPage(Math.min(page + 1, totalPages))}
-    disabled={!categoriesData?.hasMore}
-    >
-    {">"}
-    </button>
-    <button
-    onClick={() => setPage(totalPages)}
-    disabled={!categoriesData?.hasMore}
-    >
-    {">>"}
-    </button>
-    </div>
+              </button>
+            );
+          }
+        })}
+        <button
+          onClick={() => setPage(Math.min(page + 1, totalPages))}
+          disabled={!categoriesData?.hasMore}
+        >
+          {">"}
+        </button>
+        <button
+          onClick={() => setPage(totalPages)}
+          disabled={!categoriesData?.hasMore}
+        >
+          {">>"}
+        </button>
+      </div>
     </CategoriesDialog>
   );
 };

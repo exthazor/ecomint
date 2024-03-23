@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
 import Modal from './Modal';
+import BoxComponent from './Box';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -47,9 +48,8 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-12 ">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full border border-gray-300">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <>
+    <BoxComponent title='Login'>
         <p className="mt-2 my-2 text-xl text-center">Welcome back to ECOMMERCE</p>
         <p className="text-sm mb-4 text-center">The next gen business experience</p>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,11 +97,11 @@ const LoginForm = () => {
             Don't have an account? <b>SIGN UP</b>
           </a>
         </div>
-      </div>
+        </BoxComponent>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {errorMessage}
       </Modal>
-    </div>
+      </>
   );
 };
 

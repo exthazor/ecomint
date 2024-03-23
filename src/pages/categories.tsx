@@ -1,6 +1,6 @@
 import React from 'react';
 import HeaderComponent from '~/components/Header';
-import CategoriesComponent from '../components/CategoriesComponent';
+import CategoriesComponent from '../components/Categories';
 import { useRouter } from 'next/router';
 import { trpc } from '../utils/trpc';
 

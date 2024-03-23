@@ -12,7 +12,6 @@ model User {
   name                 String
   email                String          @unique
   passwordHash         String
-  salt                 String
   emailVerified        Boolean         @default(false)
   creationTimestamp    DateTime        @default(now())
   lastUpdateTimestamp  DateTime        @updatedAt
@@ -22,25 +21,28 @@ model User {
 }
 
 model AuthToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  authToken String   @unique
-  ttl       DateTime
-  user      User     @relation(fields: [userId], references: [id])
+  id                  Int             @id @default(autoincrement())
+  userId              Int
+  authToken           String          @unique
+  ttl                 DateTime
+  creationTimestamp   DateTime        @default(now())
+  user                User            @relation(fields: [userId], references: [id])
 }
 
 model Category {
-  id       Int              @id @default(autoincrement())
-  name     String           @unique
-  users    UserCategories[]
+  id                    Int              @id @default(autoincrement())
+  name                  String           @unique
+  users                 UserCategories[]
+  creationTimestamp     DateTime         @default(now())
+  lastUpdateTimestamp   DateTime         @updatedAt @default(now())
 }
 
 model UserCategories {
-  userId     Int
-  categoryId Int
-  user       User     @relation(fields: [userId], references: [id])
-  category   Category @relation(fields: [categoryId], references: [id])
-  
+  userId               Int
+  categoryId           Int
+  creationTimestamp    DateTime         @default(now())
+  user                 User             @relation(fields: [userId], references: [id])
+  category             Category         @relation(fields: [categoryId], references: [id])
   @@id([userId, categoryId])
 }
 
@@ -50,13 +52,4 @@ model OtpVerification {
   otp             String
   otpExpiration   DateTime
   user            User     @relation(fields: [userId], references: [id])
-}
-
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([name])
 }

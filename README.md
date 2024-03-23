@@ -1,29 +1,31 @@
-# Create T3 App
+# ecomint (E-Commerce Category Interest Tracker)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+The E-Commerce Category Interest Tracker is a web application designed to facilitate user registration, login, and category selection for an e-commerce platform. Users can sign up for a new account, log in to an existing account, and mark their interests in various product categories. The application stores user preferences in a database, allowing users to see their selected categories upon subsequent logins.
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+1. **User Registration:** New users can sign up for an account by providing their email address and creating a password.
+   
+2. **User Login:** Existing users can log in to their accounts using their email address and password.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+3. **Category Selection:** Upon logging in, users are presented with a list of product categories generated using Faker.js. Users can navigate through paginated categories and mark their interests by selecting checkboxes.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+4. **Persistent Preferences:** User-selected category preferences are stored in the database, ensuring that users can view their chosen categories upon logging in again.
 
-## Learn More
+## Tech Stack
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- **Database:** PostgreSQL (Hosted on Neon)
+  
+- **Framework:** Next.js (Provided by create.t3.gg)
+  
+- **API:** tRPC
+  
+- **Database ORM:** Prisma
+  
+- **CSS Framework:** Tailwind CSS
+  
+- **Email Verification:** Nodemailer library
+  
+## Submission
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Application is live on https://ecomint.vercel.app

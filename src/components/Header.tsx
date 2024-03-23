@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/router';
 
 type HeaderComponentProps = {
   showUser?: boolean;
@@ -13,16 +14,26 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   onLogout = () => {},
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleLogoClick = useCallback(() => {
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      router.push('/categories');
+    } else {
+      router.push('/login');
+    }
+  }, [router]);
+
   return (
     <>
       <header className="bg-white py-4 px-4 sm:px-6 lg:px-8 shadow">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mt-6">ECOMMERCE</h1>
+          <h1 className="text-3xl font-bold mt-6 cursor-pointer" onClick={handleLogoClick}>ECOMMERCE</h1>
           <nav className="hidden md:flex space-x-4 mt-8">
             {/* Left side menu */}
             <a href="#" className="text-sm font-semibold">Categories</a>

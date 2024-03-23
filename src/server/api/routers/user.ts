@@ -129,7 +129,7 @@ export const userRouter = t.router({
 
       // Attempt to find the user by email
       const user = await prisma.user.findUnique({ where: { email } });
-      if (!user) throw new Error('User not found');
+      if (!user) throw new Error('An account associated with this email does not exist.');
 
       // Check if the user's email is verified
     if (!user.emailVerified) {

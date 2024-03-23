@@ -1,14 +1,20 @@
 import VerifyEmailForm from '../components/VerifyEmailForm';
 import HeaderComponent from '~/components/Header';
+import { useEffect, useState } from 'react';
 
 export default function VerifyEmailPage() {
-  // In a real app, you would retrieve the email from the user's session or query parameters
-  const emailToVerify: string = sessionStorage.getItem('userEmail')!!.toString();
+  const [emailToVerify, setEmailToVerify] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setEmailToVerify(sessionStorage.getItem('userEmail') || '');
+    }
+  }, []);
 
   return (
     <>
       <HeaderComponent />
       <VerifyEmailForm email={emailToVerify} />
-      </>
+    </>
   );
 }

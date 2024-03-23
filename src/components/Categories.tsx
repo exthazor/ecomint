@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '~/utils/trpc';
 import CategoriesDialog from '~/components/CategoriesDialog';
-import Loader from '~/components/Loader';
+import Loader from './Loader';
 import { usePagination } from '~/hooks/usePagnation';
 
 type Category = {
@@ -55,7 +55,6 @@ const CategoriesComponent = () => {
     toggleInterestMutation.mutate({ categoryId, interested: !currentInterest });
   };
 
-  // Enhanced loading check to include both local loading and TRPC's loading state
   if (loading || isLoading) return <Loader />;
   if (isError) return <div>Error: {error?.message}</div>;
 

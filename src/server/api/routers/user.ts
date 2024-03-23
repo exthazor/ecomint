@@ -47,7 +47,6 @@ export const userRouter = t.router({
           name,
           email,
           passwordHash,
-          salt,
           emailVerified: false,
         },
       });

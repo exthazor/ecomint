@@ -4,7 +4,6 @@ import { trpc } from '../utils/trpc';
 import BoxComponent from './Box';
 import Modal from './Modal';
 
-
 const SignupForm = () => {
   const router = useRouter();
   const [name, setName] = useState('');

@@ -1,4 +1,3 @@
-// otp.ts
 import nodemailer from 'nodemailer';
 
 export const generateOtp = (length: number = 8): string => {

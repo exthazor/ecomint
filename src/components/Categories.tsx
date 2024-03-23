@@ -87,7 +87,16 @@ function renderPaginationButtons({
   categoriesData,
 }: RenderPaginationButtonsProps) {
 
-  return pageNumbers.map((pageNumber) => {
+  const firstAndPreviousButtons = [
+    <button key="first" onClick={() => setPage(1)} disabled={page === 1}>
+      {"<<"}
+    </button>,
+    <button key="prev" onClick={() => setPage(Math.max(page - 1, 1))} disabled={page === 1}>
+      {"<"}
+    </button>,
+  ];
+
+  const pageNumberButtons = pageNumbers.map((pageNumber) => {
     if (pageNumber === '...') {
       return <span key={String(pageNumber)} className="py-2 px-4">...</span>;
     } else {
@@ -95,20 +104,25 @@ function renderPaginationButtons({
         <button
           key={String(pageNumber)}
           className={`py-2 px-4 ${page === pageNumber ? 'text-black' : 'text-gray-500'} hover:text-gray-800`}
-          onClick={() => setPage(pageNumber)}
+          onClick={() => setPage(pageNumber as number)}
         >
           {pageNumber}
         </button>
       );
     }
-  }).concat([
+  });
+
+  const nextAndLastButtons = [
     <button key="next" onClick={() => setPage(Math.min(page + 1, totalPages))} disabled={!categoriesData?.hasMore}>
       {">"}
     </button>,
     <button key="last" onClick={() => setPage(totalPages)} disabled={!categoriesData?.hasMore}>
       {">>"}
     </button>,
-  ]);
+  ];
+
+  return [...firstAndPreviousButtons, ...pageNumberButtons, ...nextAndLastButtons];
 }
+
 
 export default CategoriesComponent;

@@ -1,6 +1,5 @@
 import { createTRPCReact } from '@trpc/react-query';
 import type { AppRouter } from '../server/api/root';
-import { httpBatchLink } from '@trpc/client';
 
 const getBaseUrl = () => {
     if (typeof window !== "undefined") return ""; // browser should use relative url

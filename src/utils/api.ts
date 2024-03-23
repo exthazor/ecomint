@@ -8,14 +8,12 @@ import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
-import { authenticateUser } from './auth'; // Adjust the path as necessary
-
 import { type AppRouter } from "~/server/api/root";
 
 const getBaseUrl = () => {
-  if (typeof window !== "undefined") return ""; // browser should use relative url
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
-  return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
+  if (typeof window !== "undefined") return "";
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return `http://localhost:${process.env.PORT ?? 3000}`;
 };
 
 /** A set of type-safe react-query hooks for your tRPC API. */
@@ -42,7 +40,6 @@ export const api = createTRPCNext<AppRouter>({
           transformer: superjson,
           url: `${getBaseUrl()}/api/trpc`,
           fetch: async (url, options = {}) => {
-            // Dynamically get authToken, e.g., from localStorage or a state management library
             const authToken = localStorage.getItem('authToken');
             if (authToken) {
               options.headers = {
